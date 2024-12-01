@@ -7,7 +7,7 @@ clock = pygame.time.Clock()
 
 screen = pygame.display.set_mode((1280,720))   #creates window
 pygame.display.set_caption("2D Game")          #sets up screen size and captions it
-background = pygame.image.load("CombinedBlue.png").convert()
+background = pygame.image.load("images/CombinedBlue.png").convert()
 background = pygame.transform.scale(background, (1280, 720))
 
 objects = []
@@ -33,7 +33,7 @@ class Object:
         self.direction = 0
         self.flipX = False
         self.frame = 0
-        self.spritelist = ["SteamWalk1.png", "SteamWalk2.png", "SteamWalk3.png", "SteamWalk4.png", "SteamWalk5.png", "SteamWalk6.png"]
+        self.spritelist = ["Wcycle/SteamWalk1.png", "Wcycle/SteamWalk2.png", "Wcycle/SteamWalk3.png", "Wcycle/SteamWalk4.png", "Wcycle/SteamWalk5.png", "Wcycle/SteamWalk6.png"]
         self.frame_timer = 0
 
     def change_direction(self):
@@ -94,7 +94,7 @@ class Player(Object):
 
 #objects
 
-Sam = Player(640, 100, 31, 41, "SteamMan.png")
+Sam = Player(640, 100, 31, 41, "Wcycle/SteamWalk1.png")
 
 
 #test_entity = Entity(600, 600, 50, 50, "SteamMan_walk.png", 5)
