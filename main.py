@@ -18,7 +18,7 @@ PInputU = 0    #initializes the booleans for player input
 PInputD = 0
 GameOver = False
 HighScore = 0
-SpawnTimer = 0
+Collision = False
 
 XBound = (0, 1280)
 
@@ -30,7 +30,6 @@ class Object:
         self.height = height     #Creates object class for us to use when making player sprite
         self.image = image
         self.velocity = [0, 0]
-        self.collider = [width, height]
 
         objects.append(self)   #adds new objects to object list
 
@@ -55,12 +54,17 @@ class Player(Object):
 
     def gravity(self):
         #If player not touching cloud, gravity pulls character down
-
         #If player falls to bottom, stop their fall + KILL YOURSELF
-        if self.y < 600:
-            self.velocity[1] = 3   #Constant speed that the player falls down
+
+        if check_collisions(Sam, Cloud1):  #if on cloud, don't move downwards
+            self.velocity[1] = 0
+            Collision = True
+            #print("Potato")
         else:
-            GameOver = True
+            if self.y < 600:
+                self.velocity[1] = 3   #Constant speed that the player falls down
+                Collision = False
+
 
     def change_direction(self):
         if self.velocity[0] < 0:      #boolean for which direction character is facing
@@ -68,11 +72,11 @@ class Player(Object):
         elif self.velocity[0] > 0:
             self.flipX = False
 
-    def set_velocity(self, xr, xl):
+    def set_velocity(self, xr, xl, xu):
         self.velocity[0] = (xr - xl) * 3    #got rid of the y-axis movement to make space for jumping
 
     def update(self):
-        self.set_velocity(PInputR, PInputL)
+        self.set_velocity(PInputR, PInputL, PInputU)
         self.gravity()  #calls gravity before updating
         self.x += self.velocity[0]
         self.y += self.velocity[1]   #updates player position + redraws character
@@ -104,13 +108,19 @@ class Player(Object):
 
 
 def check_collisions(obj1, obj2):
-    x1, y1 = obj1.get_center()     #gets the current center position of both ojects
-    x2, y2 = obj2.get_center()
-    w1, h1 = obj1.collider[0] / 2, obj1.collider[1] / 2   #gets half of the width and height of both objects
-    w2, h2 = obj2.collider[0] / 2, obj2.collider[1] / 2
-    if x1 + w1 > x2 - w2 and x1 - w1 < x2 + w2:
-        return y1 + h1 > y2 -h2 and y1 - h1 < y2 + h2  #if all these statements are true, then objects colliding
-    return False   #if not, then return False
+    x1, y1 = obj1.x, obj1.y     #gets the current center position of both objects
+    x2, y2 = obj2.x, obj2.y
+    w1, h1 = obj1.width / 2, obj1.height / 2   #gets half of the width and height of both objects
+    w2, h2 = obj2.width / 2, obj2.height / 2
+    if x1 + w1 >= x2 and x1 < x2 + w2:
+        if y1 + h1 >= y2 and y1 < y2 + h2:
+            #print(x1, y1)
+            #print(x2, y2)
+            return True
+        else:
+            return False
+    else:
+        return False   #if not, then return False
 
 
 #objects
@@ -118,11 +128,11 @@ def check_collisions(obj1, obj2):
 Sam = Player(640, 100, 31, 41, "Wcycle/SteamWalk1.png")
 Cumulonimbus = pygame.transform.scale(pygame.image.load("images/cloud.png"), (162, 62))  #correctly sized cloud
 Cloud1 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
-Cloud2 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)   #Creates four clouds that will loop
-Cloud3 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
-Cloud4 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
+#Cloud2 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)   #Creates four clouds that will loop
+#Cloud3 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
+#Cloud4 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
 
-print(objects)
+objects.pop(0)
 
 while GameOver == False:
     screen.blit(background, (0, 0))   #refreshes background before player movement
@@ -151,19 +161,22 @@ while GameOver == False:
             elif event.key == pygame.K_DOWN:
                 PInputD = 0
 
+
     Player.update(Sam)      #calls Player then updates them + draws
+    
+
     Object.update_thingy(Cloud1, Cumulonimbus, random.randint(-3, -2))   #Spawns in the clouds and loops them
     if Cloud1.x < -10:
         Cloud1 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)   #when they get off screen
-    Object.update_thingy(Cloud2, Cumulonimbus, random.randint(-2, -1))
-    if Cloud2.x < -10:
-        Cloud2 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
-    Object.update_thingy(Cloud3, Cumulonimbus, random.randint(-3, -1))
-    if Cloud3.x < -10:
-        Cloud3 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
-    Object.update_thingy(Cloud4, Cumulonimbus, random.randint(-4, -2))
-    if Cloud4.x < -10:
-        Cloud4 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
+    #Object.update_thingy(Cloud2, Cumulonimbus, random.randint(-2, -1))
+    #if Cloud2.x < -10:
+        #Cloud2 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
+    #Object.update_thingy(Cloud3, Cumulonimbus, random.randint(-3, -1))
+    #if Cloud3.x < -10:
+        #Cloud3 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
+    #Object.update_thingy(Cloud4, Cumulonimbus, random.randint(-4, -2))
+    #if Cloud4.x < -10:
+        #Cloud4 = Object(1200, random.randint(10, 600), 485, 186, Cumulonimbus)
 
 
     clock.tick(70)    #caps it from refreshing more than 70 times a second
